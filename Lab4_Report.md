@@ -1,106 +1,246 @@
-# My Lab 4 Project - Bankruptcy Prediction Research
+# Lab 4 - Binary Classification Research Report
 
-Hey! This is my Lab 4 project where I had to research and justify modeling decisions for predicting company bankruptcies. Pretty interesting stuff once I dug into the data!
+**Student:** Gayathri Chinka  
+**Dataset:** Company Bankruptcy Prediction (6,819 companies, 96 financial features)  
+**Assignment:** Research and justify modeling decisions for binary classification
 
-## 📂 What's in this folder
+---
 
-Here's what I've got set up:
+## 1. Choosing the Initial Models
 
-- **`Lab4_Report.md`** - This is my main submission that answers all 17 research questions
-- **`data.csv`** - The bankruptcy dataset (6,819 companies with tons of financial ratios)
-- **`data_quality_check.py`** - Script I wrote to explore the data and find problems
-- **`psi_analysis.py`** - My PSI implementation to check for distribution drift
-- **`requirements.txt`** - All the Python packages I needed
-- **`README.md`** - This file explaining everything
+**My Selected Models:**
+- **Benchmark:** Logistic Regression
+- **Model 2:** Random Forest 
+- **Model 3:** XGBoost
 
-## 🎯 What I was supposed to do
+**Why I picked these:**
+- I need Logistic Regression as my simple baseline that business people can actually understand
+- Random Forest handles the crazy outliers I found in my data and gives me feature rankings automatically
+- XGBoost works great with tabular financial data and deals with class imbalance better than other algorithms
+- I'm not doing clustering because I already have bankruptcy labels - supervised learning makes way more sense
 
-My professor wanted me to research 17 different decision areas for binary classification and explain WHY I made each choice (not just what I chose). Had to use jot notes format or get a zero! 😅
+---
 
-The big areas were things like:
-- Which 3 models to pick (needed a benchmark)
-- How to handle class imbalance 
-- Outlier treatment strategies
-- Feature selection approaches
-- Evaluation metrics that make sense
-- And a bunch more...
+## 2. Data Pre-processing
 
-## 🔍 Cool stuff I discovered
+**My strategy:**
+- I'll only standardize features for Logistic Regression since it's sensitive to different scales
+- Random Forest and XGBoost don't need scaling - they work fine with raw financial ratios
+- I found 13 features with impossible billion-dollar values that I need to cap at 99th percentile
+- Same preprocessing pipeline for all models to make fair comparisons
 
-When I actually ran my analysis, I found some pretty wild things:
+**Why this approach works:**
+- Different algorithms have different needs - no point scaling everything when trees don't care about it
+- My data exploration revealed clear data quality errors that need fixing
+- Consistent preprocessing lets me compare model performance fairly
+- Tree-based models naturally handle mixed feature scales through their decision-making process
 
-### The class imbalance is INSANE
-- Only 220 bankrupt companies out of 6,819 total
-- That's just 3.2% - way more imbalanced than I expected
-- 1:29 ratio means I definitely need SMOTE or something similar
+---
 
-### The data has serious quality issues
-- Found 13 features with completely impossible values
-- Current Ratio had a max of 2.75 BILLION (normal range is like 0.5-3.0)
-- Revenue Per Share hit 3.02 billion - clearly data entry errors
-- But most of the other ratios looked pretty normal (0-1 range)
+## 3. Handling Class Imbalance
 
-### My train/test split looks solid
-- PSI values all under 0.1 for the features I tested
-- No distribution drift between training and test data
-- Stratified sampling worked well to maintain the bankruptcy rate
+**My decision:** SMOTE oversampling to create synthetic bankruptcy examples
 
-## 🚀 How to run my code
+**Why I'm using SMOTE:**
+- My analysis shocked me - only 220 bankrupt companies out of 6,819 total (3.2%)
+- That's a 1:29 imbalance ratio which is way more severe than I expected
+- SMOTE creates new synthetic examples instead of just duplicating the same bankruptcy cases
+- Class weights alone won't cut it for such an extreme imbalance
 
-If you want to see my analysis:
+---
 
-1. **Get set up:**
-   ```bash
-   # Make sure you're in the right folder
-   cd lab4_Gayathri_chinka
-   
-   # Turn on the virtual environment
-   lab4_env\Scripts\activate
-   
-   # Install packages (should already be done)
-   pip install -r requirements.txt
-   ```
+## 4. Outlier Detection and Treatment
 
-2. **Run the data quality check:**
-   ```bash
-   python data_quality_check.py
-   ```
-   This shows you the class imbalance and finds all those crazy outliers I mentioned.
+**My approach:**
+- I'll cap outliers at 99th percentile only for features with clearly impossible values
+- I won't touch outliers that might actually indicate financial distress patterns
+- My analysis found 13 features with billion-dollar maximums (Current Ratio: 2.75 billion!)
+- I'll be super careful not to remove legitimate extreme values from actual bankrupt companies
 
-3. **Run the PSI analysis:**
-   ```bash
-   python psi_analysis.py
-   ```
-   This creates the plot showing distribution stability between train/test sets.
+**Why this strategy:**
+- Financial companies naturally have extreme ratios when they're struggling or failing
+- The billion-dollar values I discovered are obviously data entry mistakes (impossible in real finance)
+- Bankrupt companies might have legitimately extreme ratios that are actually predictive signals
+- Better to keep too much potentially useful information than accidentally throw away bankruptcy patterns
 
-## 📊 What the results look like
+---
 
-When you run `data_quality_check.py`, you'll see:
-- Dataset shape: (6819, 96) 
-- Missing values: 0 (nice!)
-- A bunch of warnings about features with extreme values
-- Class distribution showing the 96.8% vs 3.2% split
-- Stats for key financial ratios
+## 5. Addressing Sampling Bias Across train/test sets
 
-The PSI analysis gives you a nice bar chart where everything should be green (PSI < 0.1).
+**My implementation:** PSI analysis between training and test feature distributions
 
-## 🎯 How this connects to my decisions
+**Why PSI validation matters:**
+- I need to prove my train and test sets actually come from the same underlying distribution
+- If they're too different, my model performance estimates will be meaningless
+- PSI catches this problem before I waste time building unreliable models
+- My PSI analysis showed all values under 0.1 (no drift detected) which validates my approach
 
-All this analysis actually drove my research decisions:
+**My PSI Results:**
+- Tested 10 key financial features after stratified 70/30 split
+- All PSI values between 0.0035 and 0.0099 (well below 0.1 warning threshold)
+- Visual confirmation shows all green bars indicating stable distributions
+- This proves my stratified sampling maintains consistent feature patterns across splits
 
-- **Severe imbalance** → SMOTE oversampling
-- **Crazy outliers** → Tree models more robust than linear
-- **Stable distributions** → Stratified CV approach works
-- **Clean feature ratios** → Most preprocessing already done
+![PSI Analysis Results](psi_analysis_results.png)
 
-Pretty cool how the real data backed up my theoretical research!
+---
 
-## 📝 For the video presentation
+## 6. Data Normalization
 
-I'm planning to talk about:
-1. The shocking class imbalance I discovered (1:29 ratio)
-2. Those impossible billion-dollar financial ratios
-3. How PSI analysis confirmed my sampling approach 
-4. Why this led me to pick robust models like Random Forest and XGBoost
+**My strategy:**
+- StandardScaler only for Logistic Regression
+- Raw features for Random Forest and XGBoost
+- Apply normalization after train/test split to prevent data leakage
+- Model-specific approach based on what each algorithm actually needs
 
-The key is showing how my actual findings support the decisions, not just theoretical reasoning.
+**Why this makes sense:**
+- Logistic regression coefficients get distorted when features have wildly different scales
+- Tree models make splits based on individual feature values regardless of scale
+- Doing normalization after splitting prevents test information from contaminating training
+- Each model should get preprocessing that optimizes its specific performance
+
+---
+
+## 7. Testing for Normality
+
+**My decision:** Skip formal normality testing
+
+**Why I'm not bothering with this:**
+- Random Forest and XGBoost make zero assumptions about feature distributions
+- Logistic regression is robust enough with my large sample size (6,819 companies)
+- Central limit theorem helps with non-normal features when I have this much data
+- I have bigger fish to fry with the outliers and class imbalance problems
+
+---
+
+## 8. Dimensionality Reduction (PCA)
+
+**My decision:** Keep original financial ratios, no PCA
+
+**Arguments FOR PCA:**
+- Could reduce noise and overfitting with 95 features and only 220 positive cases
+- Might eliminate multicollinearity between related financial ratios
+
+**Arguments AGAINST PCA:**
+- I lose the ability to explain which specific financial metrics predict bankruptcy
+- Financial domain experts designed these ratios for bankruptcy prediction
+- Tree models handle high dimensions just fine without dimension reduction
+- Business stakeholders need to understand which ratios matter for regulatory compliance
+
+**My final choice:** Interpretability wins over dimension reduction
+
+---
+
+## 9. Feature Engineering Choices
+
+**My decision:** Use existing financial features without creating new ones
+
+**Why I'm sticking with what's there:**
+- This dataset already has 95 expertly designed financial ratios and metrics
+- Finance domain experts probably optimized these features for bankruptcy prediction already
+- With only 220 bankruptcy cases, adding more features might cause overfitting
+- I'd rather focus my energy on selecting the best existing features than engineering new ones
+
+---
+
+## 10. Testing and Addressing Multicollinearity
+
+**My plan:** Check correlation matrix and remove features with >0.9 correlation
+
+**Why multicollinearity matters:**
+- Financial ratios are naturally related (profitability measures, liquidity ratios, leverage metrics)
+- High correlation makes logistic regression coefficients unstable and hard to interpret
+- Tree models are less sensitive but removing redundant features still improves efficiency
+- I want clean, interpretable results for business stakeholders
+
+---
+
+## 11. Feature Selection Methods
+
+**My approach:** XGBoost feature importance as my primary selection method
+
+**Why XGBoost importance:**
+- It captures non-linear relationships and feature interactions better than simple correlation
+- More sophisticated than just looking at individual feature correlations
+- I can validate results by comparing with Random Forest importance rankings
+- Planning to keep top 30-40 features to balance performance with business interpretability
+
+---
+
+## 12. Hyperparameter Tuning Methods
+
+**My choice:** RandomizedSearchCV for computational efficiency
+
+**Why random search over grid search:**
+- Grid search would take forever with multiple models and limited time for this assignment
+- Research shows random search often finds good solutions just as fast as exhaustive search
+- I can focus tuning on the most impactful hyperparameters for each model type
+- 5-fold CV gives reliable estimates without burning too much compute time
+
+---
+
+## 13. Cross-Validation Strategy
+
+**My decision:** Stratified 5-fold Cross-Validation
+
+**Why stratified CV:**
+- Regular K-fold could give me folds with zero bankruptcy cases due to 3.2% rate
+- Stratified maintains the same bankruptcy percentage in every fold
+- 5 folds balances reliable performance estimates with reasonable computation time
+- This is standard practice and lets me compare results with other bankruptcy prediction studies
+
+---
+
+## 14. Evaluation Metrics Selection
+
+**My chosen metrics:**
+- ROC-AUC for overall discrimination ability
+- Precision-Recall AUC for imbalanced data focus
+- F1-score for single balanced performance number
+- Using predict_proba() for business risk threshold decisions
+
+**Why these specific metrics:**
+- ROC-AUC is good overall but can be overly optimistic with severe class imbalance
+- PR-AUC focuses more on minority class performance which matters most for bankruptcy prediction
+- F1 gives me one interpretable number that balances precision and recall
+- Probability outputs let business users set custom risk thresholds based on their needs
+
+---
+
+## 15. Evaluating Drift and Model Degradation
+
+**My implementation:** PSI monitoring between train and test feature distributions
+
+**Why drift detection is critical:**
+- I need early warning when my model will start failing on new data
+- PSI values above 0.1 indicate when feature distributions change significantly
+- Essential for knowing when to retrain models in production environments
+- My analysis confirmed stable distributions (all PSI < 0.1) so model should generalize well
+
+---
+
+## 16. Interpreting Model Results and Explainability
+
+**My plan:** SHAP values for my best-performing model
+
+**Why SHAP for explainability:**
+- SHAP gives feature-level explanations for individual bankruptcy predictions
+- Banking regulations require explainable models for credit and risk decisions
+- Builds trust with business stakeholders who need to understand model reasoning
+- Shows me exactly which financial ratios drive bankruptcy predictions for different companies
+
+---
+
+## Summary of My Research-Driven Decisions
+
+Based on my actual data analysis findings:
+
+**Models:** Logistic Regression (interpretable baseline), Random Forest (outlier robust), XGBoost (imbalance handling)  
+**Class Imbalance:** SMOTE oversampling (1:29 ratio demands intervention)  
+**Preprocessing:** Model-specific scaling, outlier capping for impossible values only  
+**Feature Selection:** XGBoost importance (top 30-40 from 95 financial ratios)  
+**Validation:** Stratified 5-fold CV with PSI drift monitoring  
+**Metrics:** ROC-AUC, PR-AUC, F1-score using probability outputs  
+**Explainability:** SHAP analysis for regulatory compliance and stakeholder trust
+
+My data exploration revealed 13 features with impossible values and severe 1:29 class imbalance, which directly shaped every single decision I made. This isn't theoretical research - it's evidence-based modeling driven by real data problems I actually discovered.
