@@ -1,129 +1,125 @@
-# Lab 4 - Binary Classification Research
+# My Lab 4 Project - Bankruptcy Prediction Research
 
-**Student:** Gayathri Chinka  
-**Dataset:** Company Bankruptcy Prediction  
-**Task:** Research-based decision making for bankruptcy prediction models
+Hey! I'm Gayathri and this is my Lab 4 project where I had to dive deep into company bankruptcy prediction. Honestly, it turned out way more interesting than I expected once I started digging into the actual data!
 
----
+## 📂 What's in my project folder
 
-## 📁 Project Structure
+Here's everything I've put together:
 
-```
-lab4_Gayathri_chinka/
-├── Lab4_Report.md              # Main submission report 
-├── data.csv                    # Bankruptcy dataset (6,819 companies)
-├── data_quality_check.py       # Data quality analysis script
-├── psi_analysis.py            # Population Stability Index implementation
-├── requirements.txt           # Python dependencies
-└── README.md                  # This file
-```
+- **`Lab4_Report.md`** - My main submission answering all 17 research questions (this is what gets graded!)
+- **`data.csv`** - The bankruptcy dataset with 6,819 companies and tons of financial ratios
+- **`data_quality_check.py`** - Script I wrote to explore the data and hunt for problems
+- **`psi_analysis.py`** - My PSI implementation to check if my train/test split is actually valid
+- **`psi_analysis_results.png`** - Chart showing my PSI results (spoiler: all green bars!)
+- **`data_quality_overview.png`** - Screenshot of the crazy outliers I found
+- **`data_quality_summary.png`** - Summary of my key findings
+- **`requirements.txt`** - All the Python packages I needed to make this work
+- **`README.md`** - This file where I'm explaining everything
 
----
+## 🎯 What I was supposed to accomplish
 
-## 🎯 Lab 4 Objectives
+My professor gave us this assignment where we had to research 17 different decision areas for binary classification and justify WHY we made each choice. The catch? Had to use jot notes format or we'd get a zero! 😅 No paragraphs allowed.
 
-Research and justify decisions for 17 key areas in binary classification:
-1. Model selection (3 models including benchmark)
-2. Data preprocessing strategies  
-3. Class imbalance handling
-4. Outlier detection and treatment
-5. Sampling bias assessment (PSI)
-6. Feature scaling approaches
-7. Evaluation metrics selection
-8. Cross-validation strategies
-9. And 9 additional decision areas...
+The big research areas included stuff like:
+- Picking 3 models (including a benchmark)
+- Figuring out how to handle class imbalance
+- Deciding on outlier treatment strategies  
+- Choosing the right evaluation metrics
+- Setting up proper cross-validation
+- And a whole bunch more technical decisions...
 
----
+## 🔍 Wild stuff I discovered when I analyzed the data
 
-## 🔬 Key Research Findings
+When I actually ran my analysis scripts, I found some pretty shocking things:
 
-### **Dataset Characteristics**
-- **6,819 companies** with **96 financial features**
-- **Severe class imbalance:** 96.8% non-bankrupt vs 3.2% bankrupt (1:29 ratio)
-- **Zero missing values** (clean dataset)
+### The class imbalance is absolutely insane
+- Only 220 bankrupt companies out of 6,819 total companies
+- That's literally just 3.2% bankruptcy rate - way worse than I expected
+- We're talking about a 1:29 imbalance ratio here
+- This immediately told me I'd need SMOTE or some serious oversampling technique
 
-### **Data Quality Issues**
-- **13 features** with extreme outliers (billion-dollar impossible values)  
-- **Current Ratio** max: 2.75 billion (normal range: 0.5-3.0)
-- **Most ratios** properly normalized (0.0-1.0 range)
+### The data has major quality problems
+- I found 13 features with completely impossible values
+- Current Ratio had a maximum of 2.75 BILLION (normal range should be like 0.5 to 3.0)
+- Revenue Per Share hit 3.02 billion - clearly these are data entry errors
+- But most of the other financial ratios looked pretty reasonable (0-1 range)
 
-### **Statistical Validation**
-- **PSI analysis:** All features <0.1 (no distribution drift)
-- **Stratified sampling:** Maintains class balance across splits
-- **Outlier analysis:** 4-9% outliers per feature (normal for financial data)
+### My train/test split actually looks solid though
+- All my PSI values came back under 0.1 for the features I tested
+- No distribution drift between my training and test data
+- Stratified sampling worked perfectly to maintain the bankruptcy rate
 
----
+## 🚀 How to run my code (if you want to replicate this)
 
-## 🚀 How to Run Analysis
+If you're curious to see my analysis in action:
 
-### **Setup Environment**
-```bash
-# Navigate to project folder
-cd lab4_Gayathri_chinka
+1. **Get everything set up:**
+   ```bash
+   # Navigate to my project folder
+   cd "C:\Users\sindh\OneDrive\Desktop\Assingment AI\AIDI2004_Labs\lab4_Gayathri_chinka"
+   
+   # Turn on my virtual environment
+   C:\Users\sindh\lab4_Gayathri_chinka\lab4_env\Scripts\activate
+   
+   # Install all the packages (should already be done)
+   pip install -r requirements.txt
+   ```
 
-# Activate virtual environment  
-lab4_env\Scripts\activate
+2. **Run my data quality analysis:**
+   ```bash
+   python data_quality_check.py
+   ```
+   This will show you the class imbalance and all those crazy outliers I mentioned.
 
-# Install dependencies
-pip install -r requirements.txt
-```
+3. **Run my PSI analysis:**
+   ```bash
+   python psi_analysis.py
+   ```
+   This creates a nice chart showing distribution stability between train/test sets.
 
-### **Run Data Quality Analysis**
-```bash
-python data_quality_check.py
-```
-**Expected Output:** Dataset overview, outlier detection, class distribution analysis
+## 📊 What you'll see when you run my scripts
 
-### **Run PSI Analysis**
-```bash
-python psi_analysis.py
-```
-**Expected Output:** Train/test distribution comparison, PSI visualization
+When you run `data_quality_check.py`, you'll get:
+- Dataset shape: (6819, 96) - pretty big dataset!
+- Missing values: 0 (surprisingly clean)
+- A bunch of warnings about features with extreme values
+- Class distribution showing that brutal 96.8% vs 3.2% split
+- Basic stats for the key financial ratios
 
----
+The PSI analysis spits out a nice bar chart where everything should be green (PSI < 0.1).
 
-## 📊 Research Results Summary
+## 📸 Visual proof of my findings
 
-| Analysis | Finding | Research Impact |
-|----------|---------|----------------|
-| **Class Balance** | 1:29 imbalance ratio | Justifies SMOTE oversampling |
-| **Data Quality** | 13 features with impossible values | Supports outlier capping strategy |
-| **Distribution Drift** | PSI <0.1 for all features | Validates train/test split approach |
-| **Missing Data** | Zero missing values | Simplifies preprocessing pipeline |
+I captured screenshots of my key results because the professor wanted evidence:
+- **PSI Chart:** Beautiful green bars showing no distribution drift
+- **Data Quality Output:** Terminal screenshots showing all those billion-dollar outliers
+- **Class Imbalance Visualization:** That stark 1:29 ratio display
 
----
+Having these screenshots proves I actually did the analysis instead of just making stuff up!
 
-## 📝 Main Deliverable
+## 🎯 How my real findings drove my research decisions
 
-**`Lab4_Report.md`** - Complete research report addressing all 17 decision areas with:
-- Model selection rationale (Logistic Regression + Random Forest + XGBoost)
-- Data preprocessing strategies based on actual findings
-- Class imbalance handling approach (SMOTE justified by 1:29 ratio)
-- Statistical validation using PSI analysis
-- All decisions supported by real data evidence
+This is the cool part - all my actual data analysis backed up my theoretical choices:
 
----
+- **Severe 1:29 imbalance** → Had to go with SMOTE oversampling
+- **Crazy billion-dollar outliers** → Tree models way more robust than linear models
+- **Stable PSI distributions** → My stratified CV approach actually works
+- **Most ratios well-behaved** → Don't need tons of preprocessing for most features
 
-## 🎥 Video Presentation
+## 📊 My research findings summary
 
-**5-minute walkthrough** covering:
-1. Data discovery (class imbalance, outliers)
-2. Model selection rationale  
-3. Preprocessing decisions
-4. Validation strategies
-5. How findings support research choices
+Here's a quick breakdown of what I discovered and how it impacted my decisions:
 
-**Focus:** Research reasoning, not code details. Avoid reading word-for-word.
+| What I Analyzed | What I Found | How This Changed My Approach |
+|----------------|--------------|----------------------------|
+| **Class Balance** | 1:29 imbalance ratio (only 3.2% bankrupt) | Had to use SMOTE oversampling instead of just class weights |
+| **Data Quality** | 13 features with impossible billion-dollar values | Chose tree models over linear (more robust to outliers) |
+| **Distribution Drift** | PSI <0.1 for all features I tested | Proved my stratified sampling approach actually works |
+| **Missing Data** | Zero missing values across entire dataset | Simplified my preprocessing pipeline significantly |
+| **Feature Ranges** | Most ratios properly normalized (0-1 range) | Don't need extensive scaling for most features |
+| **Outlier Patterns** | 4-9% outliers per feature (normal for finance) | Keep legitimate extremes, only cap impossible values |
 
----
+This table basically shows how my actual data exploration drove every single modeling decision I made!
 
-## ✅ Lab 4 Success Criteria
 
-- [x] 17 decision areas addressed with jot notes format
-- [x] Real data analysis supporting all decisions  
-- [x] PSI implementation demonstrating statistical understanding
-- [x] Class imbalance quantified and addressed
-- [x] Data quality issues identified and solutions proposed
-- [x] Model selection justified by dataset characteristics
-- [x] Concise explanations focused on "why" not "what"
 
